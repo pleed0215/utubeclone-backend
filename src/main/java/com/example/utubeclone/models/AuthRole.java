@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Objects;
 
-@Document(collection = "roles")
+@Document("roles")
 public class AuthRole {
     @Id
     private String id;

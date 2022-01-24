@@ -18,17 +18,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 
-@Component
 public class AuthTokenFilter extends OncePerRequestFilter {
-    private final UserDetailsServiceImpl userDetailsService;
-    private final JwtUtils jwtUtils;
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
+    @Autowired
+    private JwtUtils jwtUtils;
     private final static Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
-    @Autowired
-    public AuthTokenFilter(UserDetailsServiceImpl detailsService, JwtUtils jwtUtils) {
-        this.userDetailsService = detailsService;
-        this.jwtUtils = jwtUtils;
-    }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -36,7 +33,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             String jwt = parseJwt(request);
             if(jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String username = jwtUtils.getUsernameFromJwtToken(jwt);
-
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()
@@ -52,7 +48,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
-        if(StringUtils.hasText("headerAuth") && headerAuth.startsWith("Bearer ")) {
+        if(headerAuth != null && StringUtils.hasText("headerAuth") && headerAuth.startsWith("Bearer ")) {
             return headerAuth.substring(7);
         }
         return null;
