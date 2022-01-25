@@ -13,6 +13,7 @@ import com.example.utubeclone.models.RoleName;
 import com.example.utubeclone.models.User;
 import com.example.utubeclone.repository.AuthRoleRepository;
 import com.example.utubeclone.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
+@Slf4j
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
@@ -53,7 +55,7 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) throws Exception {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsername(),
@@ -66,6 +68,7 @@ public class AuthController {
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
+
         return ResponseEntity.ok(
                 JwtResponse.builder()
                         .id(userDetails.getId())
@@ -73,6 +76,7 @@ public class AuthController {
                         .email(userDetails.getEmail())
                         .token(jwt)
                         .roles(roles)
+                        .build()
         );
     }
 

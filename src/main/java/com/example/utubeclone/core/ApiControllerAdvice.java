@@ -5,6 +5,7 @@ import com.example.utubeclone.auth.exception.UsernameAlreadyExistException;
 import com.example.utubeclone.core.dto.MessageResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -27,6 +28,17 @@ public class ApiControllerAdvice {
         );
     }
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<MessageResponse> handleAuthenticationException(AuthenticationException e) {
+        return new ResponseEntity<>(
+                new MessageResponse(
+                        e.getMessage(),
+                        HttpStatus.UNAUTHORIZED.value()
+                ),
+                HttpStatus.UNAUTHORIZED
+        );
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<MessageResponse> handleValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
@@ -37,4 +49,5 @@ public class ApiControllerAdvice {
         );
         return new ResponseEntity<>(messageResponse, HttpStatus.BAD_REQUEST);
     }
+
 }
